@@ -94,6 +94,6 @@ function addAMuseum(museums, newName, newURL, newYear){
   return museums;
 }
 
-addAMuseum(museums2);
+addAMuseum(museums2, "The New Museum", "newmuseum.org", 1977);
 
 console.log('museums2', museums2);

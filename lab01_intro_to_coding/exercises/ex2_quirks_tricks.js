@@ -27,8 +27,8 @@ var test3 = test1 === test2;
 // Task
 // Change this code so test4 is false and test5 is true. Use console.log() to confirm your cod works.
 
-var test4 = 0 == "";
-var test5 = 1 === "1";
+var test4 = 0 === "";
+var test5 = 1 == "1";
 
 console.log("test4 is", test4, "and test 5 is", test5);
 
@@ -40,7 +40,8 @@ var y = 0.4;
 var z = 0.5;
 
 var p = w + x;
-
+console.log(p)
 var q = z - x;
-
+console.log(q)
 var r = y - w;
+console.log(r)
