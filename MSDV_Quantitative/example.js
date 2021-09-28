@@ -44,7 +44,7 @@ d3.json("data.json", function (json) {
   });*/
 
   fashionArray.sort(function (a, b) {
-    if(a.count < 25 ){
+    if(a.count != 7  ){
     return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
   }});
 

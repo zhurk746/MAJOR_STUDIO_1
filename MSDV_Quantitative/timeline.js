@@ -127,7 +127,7 @@ function timelineChart() {
           d3.select(this).style("fill", "#40E0D0").style("stroke", "#0000ff");
         })
         .on("mouseout", function () {
-          d3.select(this).style("fill", "black").style("stroke", "#999999");
+          d3.select(this).style("fill", "#40E0D0").style("stroke", "#999999");
         });
         
        
@@ -156,9 +156,9 @@ function timelineChart() {
         .text(function (d) {
           return _date(d);
         })
-        .attr("style", "font-size: 4pt; font-family: sans-serif; text-align: center;")
+        .attr("style", "font-size: 6pt; font-family: sans-serif; text-align: center;")
          .on("mouseover",function(){
-           d3.select(this).style("font-size","20pt").style("color", "white") 
+           d3.select(this).style("font-size","12pt").style("color", "white") 
           });
         //.style('fill', function(d) {return sequentialScale(d.artData[i].count)})
         
