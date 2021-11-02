@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@700&display=swap" rel="stylesheet">
+</head>
+<style type="text/css">
+  body {
+    background-color: black;
+  }
+  h1 {
+    text-align: center;
+    font-family: 'Old Standard TT', serif;
+    color: white;
+  }
+    
+  h3 {
+    text-align: center;
+    font-family: 'Old Standard TT', serif;
+    color: white;
+  }
+</style>
+
+<h1>What's in a Name?</h1>
+<h3>The below is a treemap that visualizes an exploration of the first names of the individuals in the Smithsonian's National Portrait Gallery that appear to have been chronicled in New York.</h3>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 0, right: 0, bottom: 0, left: 0},
+  width = 1920 - margin.left - margin.right,
+  height = 1920 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+.append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+.append("g")
+  .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+
+// Define a list of bad first name values.
+var badNamesLowercase = [
+  'mrs',
+  'j',
+  'the',
+  'possibly',
+  'baby',
+  'letter',
+  'strattons',
+  'g',
+  'st',
+  'us',
+  'a',
+  'members',
+  'son',
+  'russian',
+  'dr',
+  'm',
+  'thin',
+  'mr', 
+  'unidentified',
+  'p',
+  'this',
+  'w',
+  'indian',
+  'first',
+  'prince',
+  'spotted'
+];
+
+
+let portraitData;
+let portraitArray=[];
+// read json data
+d3.json("data.json", function(json) {
+  portraitData = json;
+  analyzeData();
+  if (json === null) return; // parse problem, nothing to do here
+
+  // setup data for chart
+  function analyzeData() {
+    let titleNow;
+    let portraitLength;
+
+    // go through the list of textiles
+    portraitData.forEach(function (n) {
+      portraitLength=portraitData.length;
+      titleNow = n.title;
+      
+      let firstName=titleNow.split(' ')[0];
+      //let firstName=newName[0];
+       // Remove punctuation and leading/trailing spaces:
+    firstName = firstName.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").trim();
+    
+    
+    // Skip any bad values we defined above.
+    if (badNamesLowercase.indexOf(firstName.toLowerCase()) > -1) {
+      return;
+    }
+
+      let match = false;
+
+      portraitArray.forEach(function (p) {
+        //parent: portraitLength;
+        if (p.name == firstName) {
+          p.value++;
+          p.images.push(n.filename);
+          //p.value.push(portraitLength)
+          //p.filename.push(n.filename);
+          //p.title.push(n.title);
+          //p.date.push(n.date);
+          match = true;
+          //portraitLength;
+        }
+      });
+      //count needs to go go into children call images children
+      // if not create a new entry for date range
+      if (!match) {
+        //let dateNow;
+        //dateNow=n.date.split(' ')[1]
+        //console.log(dateNow)
+        portraitArray.push(
+          {
+          //value: [portraitLength],
+          name: firstName,
+          value: 1,
+          //title: n.title,
+          //link: n.link,
+          //id: n.objectID,
+          place: n.place,
+          date: n.date.split('-')[0],
+          images: [n.filename]
+        });
+      {portraitLength}}
+    });
+    //let groupByDate=d3.group(fashionArray, d => d.name);
+    // sort by amount of items in the list
+
+    portraitArray.sort((a, b) => (a.value < b.value ? 1 : -1));
+  }
+
+
+   portraitArray.forEach(function(p, i) {
+    p.value = +p.value; // coerce into right type
+  });
+
+console.log(portraitArray);
+
+
+
+//console.log(portraitData.length);
+
+let data=portraitArray;
+  // Give the data to this cluster layout:
+
+//data=data.slice(0,20);
+
+data={'name': 'New York', 'children':data};
+
+
+
+var root = d3.hierarchy(data).sum(function(d){ return d.value});// Here the size of each leave is given in the 'value' field in input data
+
+console.log(root);
+  // Then d3.treemap computes the position of each element of the hierarchy
+  
+                            
+  //if (root.data.children.name !='Mrs.')  {
+  d3.treemap()
+    .size([width, height])
+    .padding(2)
+    (root)
+  console.log(root.leaves())
+  // use this information to add rectangles:
+  svg
+    .selectAll("rect")
+    .data(root.leaves())
+    .enter()
+    .append("rect")
+      .attr('x', function (d) { return d.x0; })
+      .attr('y', function (d) { return d.y0; })
+      .attr('width', function (d) { return d.x1 - d.x0; })
+      .attr('height', function (d) { return d.y1 - d.y0; })
+      .style("stroke", "black")
+      .style("fill", function(d) {return d3.interpolateWarm(parseFloat(d.data.value));})
+      .style("opacity","0.7");
+
+//console.log( d.x0 );
+  // and to add the text labels
+  svg
+    .selectAll("text")
+    .data(root.leaves())
+    .enter()
+    .append("text")
+      .text(function(d){ return d.data.name })
+      .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
+      .attr("y", function(d){ return d.y0+50})    // +20 to adjust position (lower)
+      .style("fill", "transparent")
+      .style("font-size", "18px")
+      .style("font-family","Arial")
+      .on("mouseover",function(){
+      d3.select(this)
+      .style("font-size", "42px")
+      .style("fill","white")
+      .style("font-family","'Old Standard TT', serif")
+      }
+    
+);
+});
+
+</script>
