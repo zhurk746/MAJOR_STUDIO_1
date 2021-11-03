@@ -205,16 +205,23 @@ console.log(root);
       .attr("x", function(d){ return d.x0+5})    // +10 to adjust position (more right)
       .attr("y", function(d){ return d.y0+50})    // +20 to adjust position (lower)
       .style("fill", "transparent")
-      .style("font-size", "18px")
+      .style("font-size", "42px")
       .style("font-family","Arial")
       .on("mouseover",function(){
       d3.select(this)
       .style("font-size", "42px")
       .style("fill","white")
       .style("font-family","'Old Standard TT', serif")
+      })
+      .on("mouseout",function(){
+      d3.select(this)
+      .style("font-size", "42px")
+      .style("fill","transparent")
+      .style("font-family","'Old Standard TT', serif")
       }
-    
-);
-});
+      
+   )}); 
+
+
 
 </script>
