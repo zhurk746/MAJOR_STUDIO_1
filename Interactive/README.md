@@ -14,10 +14,13 @@
 This visualization will be a continuation of the tree map used in the qualitative assignment however, rather than displaying the names on the tree map only the count of times
 a first name appears will be displayed. On click of each tree map tile the first name will be displayed along with a gallery of the portraits where the subjects have that first name. 
 
-<h3>The Extinct </h3>
+<h3>What's in a Name? </h3>
 <p>
 <img src="Interactive_Three.jpg" >
+<img src="Circle_Packing_Code.png" >
 <br>
 This circle packing diagram will have added filter ability so that user's are able to filter the first name's by the amount of times they appeared in the dataset. 
 When a filter is selected only those first names appearing in the dataset that amount of times will be displayed on the screen. 
+The second image is the current coded prototype of the circle packing diagram.
 </p>
+
