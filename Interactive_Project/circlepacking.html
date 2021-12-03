@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  cursor: pointer;
+}
+
+.node:hover {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node--leaf {
+  fill: white;
+}
+
+.label {
+  font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+  color: black;
+}
+
+.label,
+.node--root,
+.node--leaf {
+  pointer-events: none;
+}
+
+</style>
+<svg width="1500" height="1500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    margin = 20,
+    diameter = +svg.attr("width"),
+    g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+
+var color = d3.scaleLinear()
+    .domain([-1, 5])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
+
+var pack = d3.pack()
+    .size([diameter - margin, diameter - margin])
+    .padding(1);
+    
+    var badNamesLowercase = [
+  'c',    
+  't',
+  'r',
+  'h',
+  'd',
+  '',
+  'e',
+  'f',
+  'us',
+  'j',
+  'unidentifed',
+  'unidentified',
+  'b',
+  'w',
+  'm',
+  'a',
+  'spotted'
+];
+
+var badTitlesLowerCase=['strattons, g.w.m. nutt, and minnie warren',
+'strattons, g.w.m. nutt, and minnie warren (wedding party)'];
+
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+let portraitData;
+let portraitArray=[];
+// read json data
+d3.json("data.json", function(json) {
+  portraitData = json;
+  analyzeData();
+  if (json === null) return; // parse problem, nothing to do here
+
+  // setup data for chart
+  function analyzeData() {
+    let titleNow;
+    let portraitLength;
+    let titlePortrait;
+
+    // go through the list of textiles
+    portraitData.forEach(function (n) {
+      portraitLength=portraitData.length;
+      titleNow = n.portrait;
+      titlePortrait=n.title;
+      let firstName=titleNow.split(' ')[0];
+      //let firstName=newName[0];
+       // Remove punctuation and leading/trailing spaces:
+    firstName = firstName.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").trim();
+    
+    
+    // Skip any bad values we defined above.
+    if (badNamesLowercase.indexOf(firstName.toLowerCase()) > -1) {
+      return;
+    }
+    
+    if (badTitlesLowerCase.indexOf(titlePortrait.toLowerCase()) > -1) {
+      return;
+    }
+    
+      let match = false;
+
+      portraitArray.forEach(function (p) {
+        //parent: portraitLength;
+        if (p.name == firstName) {
+          p.value++;
+          //p.images.push(n.filename);
+          //p.value.push(portraitLength)
+          //p.filename.push(n.filename);
+          //p.title.push(n.title);
+          //p.date.push(n.date);
+          p.collection.push({title: n.title, date: n.date, images: n.primaryImage});
+          match = true;
+          //portraitLength;
+        }
+      });
+      //count needs to go go into children call images children
+      // if not create a new entry for date range
+      if (!match) {
+        //let dateNow;
+        //dateNow=n.date.split(' ')[1]
+        //console.log(dateNow)
+        portraitArray.push(
+          {
+          //value: [portraitLength],
+          name: firstName,
+          value: 1,
+          //title: n.title,
+          //link: n.link,
+          //id: n.objectID,
+          place: n.place,
+          //title: [n.title],
+          //date: [n.date],
+          collection: [{title: n.title, date: n.date, images: n.primaryImage}]
+          //images: [n.filename]
+        });
+      {portraitLength}}
+    });
+    //let groupByDate=d3.group(fashionArray, d => d.name);
+    // sort by amount of items in the list
+
+    portraitArray.sort((a, b) => (a.value < b.value ? 1 : -1));
+  }
+
+
+   portraitArray.forEach(function(p, i) {
+    p.value = +p.value; // coerce into right type
+  });
+
+//console.log(portraitArray);
+
+
+
+//console.log(portraitData.length);
+
+let data=portraitArray;
+console.log(data);
+  // Give the data to this cluster layout:
+
+//data=data.slice(0,20);
+
+data={'name': 'New York', 'children': data };
+console.log(data);
+
+root = d3.hierarchy(data)
+      .sum(function(d) { return d.value; })
+      .sort(function(a, b) { return b.date - a.date; });
+
+console.log(root)
+  var focus = root,
+      nodes = pack(root).descendants(),
+      view;
+  
+ 
+  var circle = g.selectAll("circle")
+    .data(nodes)
+    .enter().append("circle")
+      .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
+      .style("fill", function(d) { return d.children ? color(d.depth) : null; })
+      .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
+
+  var text = g.selectAll("text")
+    .data(nodes)
+    .enter().append("text")
+      .attr("class", "label")
+      .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
+      .style("display", function(d) { return d.parent === root ? "inline" : "none"; })
+      .text(function(d) { return d.data.name+ ` | ` + d.data.value; });
+      //.text(function(d) { return d.data.value; });
+
+  var node = g.selectAll("circle,text");
+
+ svg
+      .style("background", color(0))
+      .on("click", function() { zoom(root); });
+
+  zoomTo([root.x, root.y, root.r * 2 + margin]);
+
+  function zoom(d) {
+    var focus0 = focus; focus = d;
+
+   var transition = d3.transition()
+        .duration(d3.event.altKey ? 7500 : 750)
+        .tween("zoom", function(d) {
+          var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
+          return function(t) { zoomTo(i(t)); };
+        });
+
+    transition.selectAll("text")
+      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+        .style("fill-opacity", function(d) { return d.parent === focus ? 1 : 0; })
+        .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+        .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+  }
+
+  function zoomTo(v) {
+    var k = diameter / v[2]; view = v;
+    node.attr("transform", function(d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; });
+    circle.attr("r", function(d) { return d.r * k; });
+  }
+});
+
+</script>

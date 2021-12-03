@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>Kasey Project</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+  </head>
+  <body>
+    <style>
+      .node {
+      }
+     
+      .node:hover {
+        stroke: #000;
+        stroke-width: 1.5px;
+        pointer-events:all;
+      }
+      
+      .node--leaf {
+        fill: white;
+        pointer-events:all;
+      }
+      
+      .label {
+        font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+        text-anchor: middle;
+        text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+        color: black;
+      }
+      
+      .node--root {
+        pointer-events:none;
+      }
+      
+      </style>
+    <div class="interactive"></div>
+  </body>
+  <script src="circlepacking.js"></script>
+</html>
