@@ -4,16 +4,16 @@
 
 const CLASS = "class";
 const RADIO_1 = "Unique Names";
-const RADIO_10 = "Names appearing Less than 10 Times";
-const RADIO_20 = "Names appearing Less than 20 Times";
-const RADIO_50 = "Names appearing Less than 50 Times";
+const RADIO_10 = "Less Common Names";
+const RADIO_20 = "Common Names";
+const RADIO_50 = "Popular Names";
 const RADIO_ALL = "All Names in Dataset";
 const TOOLTIP_WIDTH = 150;
 const TOOLTIP_HEIGHT = 20;
 
-const svgWidth = 1050;
-const svgHeight = 1050;
-const margin = 300;
+const svgWidth = 1250;
+const svgHeight = 1250;
+const margin = 100;
 
 const parent = d3.select(".interactive");
 
@@ -24,7 +24,7 @@ let state = {
   originalData: [],
   displayData: [],
   sizeBy: {
-    menu: [RADIO_1, RADIO_10, RADIO_20, RADIO_50, RADIO_ALL],
+    menu: [RADIO_ALL, RADIO_50, RADIO_20, RADIO_10, RADIO_1],
     selected: RADIO_ALL,
   },
 };
@@ -63,7 +63,9 @@ function initializeLayout() {
   const leftMenu = parent.append("div").attr("class", "left-menu").style("width", "300px");
   leftMenu.append("div").attr("class", "title").html(`
       <h1>What’s in a Name?</h1>
-      <h4>The below diagram explores the  various first names of individuals pictured in New York at the National Portrait Gallery. Explore the amount of times an individual with a particular first name appears in the gallery using the filters. Then click each circle to cycle through the collection of images of individuals with each first name.</h4>
+      <h4>An exploration of the first names of the individuals portrayed at the Smithsonian National Portrait Gallery in New York.</h4>
+      
+      <br> <p>Click each circle in the diagram to explore the collection of portraits with each first name.</p>
     `);
     
   leftMenu
@@ -99,16 +101,14 @@ function initializeLayout() {
   leftMenu.
     append("br").
     append("br");
-      
-  leftMenu.
-    append("br").
-    append("br");
     
   leftMenu.
     append("img")
       .attr("id", "imgsrc")
-      .attr("height", "250")
-      .attr("width", "250");
+      .attr("height", "300")
+      .attr("width", "300");
+      
+  leftMenu.append("div").attr("class", "title").html(`<p> Keep clicking the circle for more! </p>`);    
 }
 
 function clearSvg() {
@@ -265,7 +265,7 @@ function draw() {
   var svg = d3.select("svg");
   svg.html('');
   
-  var margin = 0,
+  var margin = 50,
       diameter = +svg.attr("width"),
       g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
   
@@ -292,7 +292,7 @@ function draw() {
     .enter().append("circle")
       .attr("class", function(d) {return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
       .attr("id", function(d) { return d.data.name; })
-      .style('fill', function (d) { return d.parent ? d.children ? "black" : "white" : "black"; });
+      .style('fill', function (d) { return d.parent ? d.children ? "black" : "#D3D3D3" : "black"; });
   
   var text = g.selectAll("text")
     .data(nodes)
@@ -301,7 +301,11 @@ function draw() {
       .attr("id", function(d) { return 'Label' + d.data.name; })
       .style("fill-opacity", function(d) { return d.parent === root ? 1 : 0; })
       .style("display", function(d) { return d.parent === root ? "inline" : "none"; })
-      .text(function(d) { return d.data.name+ ` | ` + d.data.value; });
+      .text(function(d) { 
+        if (d.data.value===1) {return d.data.value + ` ` + d.data.name} 
+        else {
+        if (d.data.name.substr(-1)==='s') {return d.data.value + ` ` + d.data.name + `es`}
+        else {return d.data.value + ` ` + d.data.name + `s`}} });
       //.text(function(d) { return d.data.value; });
 
   var node = g.selectAll("circle,text");
@@ -330,6 +334,7 @@ function draw() {
     
       let birthdate = document.getElementById("birthdate");
       birthdate.innerHTML = c.collection[imageIndex[c.name]].date;
+      
     };
     
     let element = document.getElementById(c.name);
@@ -354,16 +359,24 @@ function scrubData(sizeBy, data) {
   if (sizeBy == RADIO_ALL) {
     newData['children'].sort((a, b) => (a.value < b.value ? 1 : -1));
   } else {
-    let valueThreshold = 1;
+    let valueUpper = 200;
+    let valueLower= 1;
     switch (sizeBy) {
+      case RADIO_1:
+        valueLower = 1;
+        valueUpper = 1;
+        break;
       case RADIO_10:
-        valueThreshold = 10;
+        valueLower = 2;
+        valueUpper = 20;
         break;
       case RADIO_20:
-        valueThreshold = 20;
+        valueLower=21;
+        valueUpper = 50;
         break;
       case RADIO_50:
-        valueThreshold = 50;
+        valueLower=51;
+        valueUpper = 200;
         break;
     }
     
@@ -371,7 +384,7 @@ function scrubData(sizeBy, data) {
     
     let newChildren = [];
     newData['children'].forEach(function (c) {
-      if (c.value <= valueThreshold) {
+      if (c.value >= valueLower && c.value <= valueUpper) {
         newChildren.push(c);
       }
     });

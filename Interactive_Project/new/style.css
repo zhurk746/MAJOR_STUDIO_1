@@ -1,5 +1,8 @@
 * {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: Book Antiqua;
+  background-color: #D3D3D3;
+  font-weight: 600;
+
 }
 
 .interactive {
@@ -17,7 +20,7 @@
 
 .interactive svg rect.highlight {
   stroke-width: 1px;
-  stroke: white;
+  stroke: black;
 }
 
 .interactive .left-menu {
@@ -64,3 +67,4 @@
 .interactive .tooltip:not(.visible) {
   visibility: hidden;
 }
+
