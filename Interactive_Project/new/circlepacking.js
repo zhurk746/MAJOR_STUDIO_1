@@ -4,9 +4,9 @@
 
 const CLASS = "class";
 const RADIO_1 = "Unique Names";
-const RADIO_10 = "Less Common Names";
-const RADIO_20 = "Common Names";
-const RADIO_50 = "Popular Names";
+const RADIO_10 = "Less Common Names <br> (appearing 2-20 times)";
+const RADIO_20 = "Common Names <br> (appearing 21-50 times)";
+const RADIO_50 = "Popular Names <br> (appearing over 50 times)";
 const RADIO_ALL = "All Names in Dataset";
 const TOOLTIP_WIDTH = 150;
 const TOOLTIP_HEIGHT = 20;
@@ -17,6 +17,9 @@ const margin = 100;
 
 const parent = d3.select(".interactive");
 
+var txtName = 0;
+
+      
 var imageIndex = {};
 
 // we can set up our state schema before we have any data
@@ -112,8 +115,9 @@ function initializeLayout() {
 }
 
 function clearSvg() {
+  
   const svg = d3.select("svg");
-
+  
   // remember, we initialized these variables at the top
   xScale = d3.scaleLinear().range([margin, svgWidth - margin]);
   yScale = d3
@@ -286,13 +290,20 @@ function draw() {
       nodes = pack(root).descendants(),
       view;
   
- 
   var circle = g.selectAll("circle")
     .data(nodes)
     .enter().append("circle")
       .attr("class", function(d) {return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
       .attr("id", function(d) { return d.data.name; })
-      .style('fill', function (d) { return d.parent ? d.children ? "black" : "#D3D3D3" : "black"; });
+      .style('fill', function (d) { return d.parent ? d.children ? "black" : "#D3D3D3" : "black"; })
+      .style("fill", function(d) {
+              if (d.data.name == txtName.value) {
+                return "#0096FF"
+              } else {
+                return d.parent ? d.children ? "black" : "#D3D3D3" : "black";
+              }
+            });
+      
   
   var text = g.selectAll("text")
     .data(nodes)
@@ -306,6 +317,8 @@ function draw() {
         else {
         if (d.data.name.substr(-1)==='s') {return d.data.value + ` ` + d.data.name + `es`}
         else {return d.data.value + ` ` + d.data.name + `s`}} });
+        
+        
       //.text(function(d) { return d.data.value; });
 
   var node = g.selectAll("circle,text");
@@ -314,7 +327,7 @@ function draw() {
 
   zoomTo(node, circle, diameter, [root.x, root.y, root.r * 2 + margin]);
   
-  
+      
   state.displayData['children'].forEach(function (c) {
     let clickFunc = function () {
       let image = document.getElementById("imgsrc");
@@ -343,7 +356,7 @@ function draw() {
     element = document.getElementById('Label' + c.name);
     element.onclick = clickFunc;
   });
-    
+  
 }
 
 function zoomTo(node, circle, diameter, v) {
@@ -379,9 +392,9 @@ function scrubData(sizeBy, data) {
         valueUpper = 200;
         break;
     }
-    
+  
     //console.log('Threshold: ' + valueThreshold.toString());
-    
+  
     let newChildren = [];
     newData['children'].forEach(function (c) {
       if (c.value >= valueLower && c.value <= valueUpper) {
@@ -394,6 +407,11 @@ function scrubData(sizeBy, data) {
   
   return newData; 
 }
-
+    
 // this function is only called once
 dataLoad();
+    function sayHi() {
+      txtName = document.getElementById("txtName");
+      draw();
+      console.log(txtName.value);
+    }
